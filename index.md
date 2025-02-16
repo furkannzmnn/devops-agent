@@ -12,6 +12,7 @@ YAML dosyası, hangi deployment yöntemi kullanılacağını ve servisin temel g
 
 ## 🛠 YAML Dosyası Genel Yapısı
 
+
 Aşağıda, kullanıcıların oluşturması gereken YAML dosyasının temel yapısı bulunmaktadır:
 
 ```yaml
@@ -53,13 +54,15 @@ network:
 monitoring:
   enabled: true
   tool: "prometheus"  # Varsayılan: prometheus, alternatif: cloudwatch (AWS), stackdriver (GCP)
-
+```
 
 ### 4. Tablo Oluşturma
 Markdown'da tablo oluşturmak için aşağıdaki formatı kullanabilirsiniz:
 
 ```markdown
 ## 📌 YAML Dosyasında Kullanıcıdan Beklenen Bilgiler
+```
+
 
 | Alan | Açıklama | Varsayılan Değer |
 |------|----------|------------------|
@@ -79,6 +82,7 @@ Markdown'da tablo oluşturmak için aşağıdaki formatı kullanabilirsiniz:
 | `monitoring.tool` | İzleme aracı | `prometheus` |
 
 
+
 ## 📌 Deployment Seçenekleri ve Desteklenen Araçlar
 
 | Deployment Türü | Desteklenen Araçlar |
@@ -91,8 +95,8 @@ Markdown'da tablo oluşturmak için aşağıdaki formatı kullanabilirsiniz:
 
 ## 🛠 Kullanıcıdan Beklenen Girdi Örnekleri
 
-### 1️⃣ AWS ECS için YAML Örneği (Terraform ile)
-
+## 1️⃣ AWS ECS için YAML Örneği (Terraform ile)
+    
 ```yaml
 type: aws-ecs
 infrastructure:
@@ -111,24 +115,27 @@ services:
     envVars:
       - key: "DATABASE_URL"
         value: "jdbc:postgresql://db:5432/mydb"
+```
 
+## 2️⃣ Kubernetes için YAML Örneği (Helm ile)
 
+```yaml
 type: kubernetes
 infrastructure:
   provider: gcp
   deploymentTool: helm
   region: europe-west3
 
-2️⃣ Kubernetes için YAML Örneği (Helm ile)
-
 services:
   my-app:
     name: "spring-k8s"
     image: "gcr.io/my-project/myimage:latest"
     port: 8080
+```
 
+## 3️⃣ Docker Compose için YAML Örneği
 
-3️⃣ Docker Compose için YAML Örneği
+```yaml
 type: docker-compose
 infrastructure:
   provider: on-prem
@@ -144,3 +151,5 @@ services:
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=secret"
+```
+
