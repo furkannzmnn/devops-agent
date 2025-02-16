@@ -1,35 +1,141 @@
+# AI Destekli DevOps İçin YAML Dosyası Kılavuzu
+
+Bu kılavuz, AI destekli DevOps sürecinizi n8n ile otomatize ederken kullanıcıların nasıl bir YAML dosyası oluşturması gerektiğini açıklamaktadır.  
+YAML dosyası, hangi deployment yöntemi kullanılacağını ve servisin temel gereksinimlerini belirler.
+
 ---
-title: Home
-layout: home
----
 
-This is a *bare-minimum* template to create a Jekyll site that uses the [Just the Docs] theme. You can easily set the created site to be published on [GitHub Pages] – the [README] file explains how to do that, along with other details.
+## 🛠 YAML Dosyası Genel Yapısı
 
-If [Jekyll] is installed on your computer, you can also build and preview the created site *locally*. This lets you test changes before committing them, and avoids waiting for GitHub Pages.[^1] And you will be able to deploy your local build to a different platform than GitHub Pages.
+Aşağıda, kullanıcıların oluşturması gereken YAML dosyasının temel yapısı bulunmaktadır:
 
-More specifically, the created site:
+```yaml
+type: aws-ecs  # Desteklenen seçenekler: aws-ecs, kubernetes, docker-compose
+infrastructure:
+  provider: aws  # Desteklenen seçenekler: aws, gcp, azure, on-prem
+  deploymentTool: terraform  # Varsayılan: terraform, alternatif: cloudformation (AWS), helm (K8s)
+  region: us-east-1  # Deployment yapılacak bölge
+  credentials:
+    accessKey: "<AWS_ACCESS_KEY>"
+    secretKey: "<AWS_SECRET_KEY>"
 
-- uses a gem-based approach, i.e. uses a `Gemfile` and loads the `just-the-docs` gem
-- uses the [GitHub Pages / Actions workflow] to build and publish the site on GitHub Pages
+services:
+  spring-app:
+    name: "spring-container"
+    image: "your-image-name"
+    port: 8080
+    envVars:
+      - key: "SPRING_PROFILES_ACTIVE"
+        value: "prod"
+    replicas: 2  # Servis için çoğaltma sayısı
+    resources:
+      cpu: "500m"
+      memory: "512Mi"
+  redis:
+    image: "redis:latest"
+    port: 6379
+  kafka:
+    image: "confluentinc/cp-kafka:latest"
+    port: 9092
 
-Other than that, you're free to customize sites that you create with this template, however you like. You can easily change the versions of `just-the-docs` and Jekyll it uses, as well as adding further plugins.
+network:
+  vpc: "vpc-123456"
+  subnets:
+    - "subnet-1234"
+    - "subnet-5678"
+  securityGroup: "sg-123456"
 
-[Browse our documentation][Just the Docs] to learn more about how to use this theme.
+monitoring:
+  enabled: true
+  tool: "prometheus"  # Varsayılan: prometheus, alternatif: cloudwatch (AWS), stackdriver (GCP)
 
-To get started with creating a site, simply:
 
-1. click "[use this template]" to create a GitHub repository
-2. go to Settings > Pages > Build and deployment > Source, and select GitHub Actions
+### 4. Tablo Oluşturma
+Markdown'da tablo oluşturmak için aşağıdaki formatı kullanabilirsiniz:
 
-If you want to maintain your docs in the `docs` directory of an existing project repo, see [Hosting your docs from an existing project repo](https://github.com/just-the-docs/just-the-docs-template/blob/main/README.md#hosting-your-docs-from-an-existing-project-repo) in the template README.
+```markdown
+## 📌 YAML Dosyasında Kullanıcıdan Beklenen Bilgiler
 
-----
+| Alan | Açıklama | Varsayılan Değer |
+|------|----------|------------------|
+| `type` | Deployment türü | `aws-ecs` |
+| `infrastructure.provider` | Cloud sağlayıcısı | `aws` |
+| `infrastructure.deploymentTool` | Deployment için kullanılacak araç | `terraform` |
+| `infrastructure.region` | Bölge | `us-east-1` |
+| `services` | Deployment yapılacak servisler | Zorunlu alan |
+| `services.[servis_adı].image` | Docker imaj adı | Zorunlu alan |
+| `services.[servis_adı].port` | Servisin dışarıya açtığı port | Zorunlu alan |
+| `services.[servis_adı].envVars` | Ortam değişkenleri | Opsiyonel |
+| `services.[servis_adı].replicas` | Çoğaltma sayısı | `1` |
+| `services.[servis_adı].resources.cpu` | CPU limiti | `500m` |
+| `services.[servis_adı].resources.memory` | Bellek limiti | `512Mi` |
+| `network` | Ağ yapılandırması | Opsiyonel |
+| `monitoring.enabled` | İzleme açık mı? | `true` |
+| `monitoring.tool` | İzleme aracı | `prometheus` |
 
-[^1]: [It can take up to 10 minutes for changes to your site to publish after you push the changes to GitHub](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/creating-a-github-pages-site-with-jekyll#creating-your-site).
 
-[Just the Docs]: https://just-the-docs.github.io/just-the-docs/
-[GitHub Pages]: https://docs.github.com/en/pages
-[README]: https://github.com/just-the-docs/just-the-docs-template/blob/main/README.md
-[Jekyll]: https://jekyllrb.com
-[GitHub Pages / Actions workflow]: https://github.blog/changelog/2022-07-27-github-pages-custom-github-actions-workflows-beta/
-[use this template]: https://github.com/just-the-docs/just-the-docs-template/generate
+## 📌 Deployment Seçenekleri ve Desteklenen Araçlar
+
+| Deployment Türü | Desteklenen Araçlar |
+|-----------------|---------------------|
+| AWS ECS | Terraform, CloudFormation |
+| Kubernetes | Terraform, Helm |
+| Docker Compose | Native Docker Compose |
+
+**Not:** Kullanıcı AWS seçerse CloudFormation da opsiyonel olarak desteklenmelidir.
+
+## 🛠 Kullanıcıdan Beklenen Girdi Örnekleri
+
+### 1️⃣ AWS ECS için YAML Örneği (Terraform ile)
+
+```yaml
+type: aws-ecs
+infrastructure:
+  provider: aws
+  deploymentTool: terraform
+  region: eu-west-1
+  credentials:
+    accessKey: "<AWS_ACCESS_KEY>"
+    secretKey: "<AWS_SECRET_KEY>"
+
+services:
+  my-app:
+    name: "spring-app"
+    image: "myrepo/myimage:latest"
+    port: 8080
+    envVars:
+      - key: "DATABASE_URL"
+        value: "jdbc:postgresql://db:5432/mydb"
+
+
+type: kubernetes
+infrastructure:
+  provider: gcp
+  deploymentTool: helm
+  region: europe-west3
+
+2️⃣ Kubernetes için YAML Örneği (Helm ile)
+
+services:
+  my-app:
+    name: "spring-k8s"
+    image: "gcr.io/my-project/myimage:latest"
+    port: 8080
+
+
+3️⃣ Docker Compose için YAML Örneği
+type: docker-compose
+infrastructure:
+  provider: on-prem
+  deploymentTool: docker-compose
+
+services:
+  my-app:
+    name: "spring-compose"
+    image: "myimage:latest"
+    port: 8080
+  db:
+    image: "postgres:latest"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secret"
