@@ -1,3 +1,8 @@
+---
+title: Home
+layout: home
+---
+
 # AI Destekli DevOps İçin YAML Dosyası Kılavuzu
 
 Bu kılavuz, AI destekli DevOps sürecinizi n8n ile otomatize ederken kullanıcıların nasıl bir YAML dosyası oluşturması gerektiğini açıklamaktadır.  
