@@ -1,5 +1,5 @@
 ---
-title: Home
+title: YAML Dosyası Kılavuzu
 layout: home
 ---
 
